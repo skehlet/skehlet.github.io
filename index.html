@@ -1,23 +1,137 @@
----
-layout: default
----
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Steve Kehlet</title>
+	<link rel="Shortcut Icon" href="/favicon.ico" type="image/x-icon" />
+	<meta http-equiv="pragma" content="no-cache" />
+	<meta name="robots" content="all" />
+	<meta name="MSSmartTagsPreventParsing" content="true" />
+	<meta http-equiv="imagetoolbar" content="false" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->	
+	<style>
+		* {
+		    padding: 0;
+		    margin: 0;
+		}
+		p {
+		    color: #000;
+		    font-family: Helvetica;
+		    font-size: 80%;
+		    line-height: 20px;
+		    margin-bottom: 15px;
+		    -webkit-font-smoothing: antialiased;
+		}
+		#about a {
+		    color: #777;
+		    font-weight: bold;
+		    text-decoration: none;
+		    border-bottom: 0px solid rgb(15, 58, 45);
+		}
+		#about a:hover {
+		    text-decoration: none;
+		    color: #888;
+		    border-bottom: 1px solid rgb(15, 58, 45);
+		    text-shadow: none;
+		}
+		#logo {
+		    width: 50px;
+		    margin: 0;
+		    position: fixed;
+		    right: 50px;
+		    top: 50px;
+		}
+		#about {
+		    width: 400px;
+		    padding: 50px 0 0 30px;
+		    margin: 0 auto 0 50px !important;
+		}
+		h1 {
+		    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+		    font-weight: 300;
+		    margin-bottom: 20px;
+		    line-height: 130%;
+		    color: #000;
+		    text-shadow: none;
+		}
+		ul#connect {
+		    white-space: nowrap;
+		    width: 400px;
+		    padding: 10px 0 0 20px;
+		    margin: 0 auto 0 50px !important;
+		}
+		#connect li {
+		    display: inline;
+		    list-style-type: none;
+		}
+		#connect a {
+		    text-decoration: none;
+		    padding: 3px 5px;
+		    border-style: none;
+		}
+		#connect a:link,
+		#navlist a:visited {
+		    text-decoration: none;
+		    opacity: 0.2;
+		    border-style: none;
+		}
+		#connect a:hover {
+		    text-decoration: none;
+		    opacity: 0.4;
+		    border-style: none;
+		}
+		#connect img {
+		    border: none;
+		}
+		span {
+		    color: #333;
+		}
+	</style>
+</head>	
+    
+<body>
 
-<div class="home">
+	<div id="logo">
+		<img src="http://placekitten.com/50/50">
+	</div>
+	
+	<div id="about">
+		<h1>Tim Lum is a designer &amp entrepreneur at Pixel Flex.</h1>
+		
+		<p>At an early age I was fortunate to discover my passion for art &amp design. Exploring my creativity through many different mediums, I focused &amp honed my artistic strengths to the services I provide my clients today.</p>
 
-  <h1 class="page-heading">Posts</h1>
+		<p>I attended <a href="http://www.canadorec.on.ca/">Canadore College of Applied Arts</a>, graduating with a Diploma in Graphic Design Productions and a Certificate in Interactive Multimedia with academic honours. During my education I started my freelance business by participating in the Ministry of Economic Development &amp Trade Program, <a href="http://www.ontariocanada.com/ontcan/1medt/smallbiz/en/sb_ye_summerco_en.jsp">Summer Company</a>.</p>
 
-  <ul class="post-list">
-    {% for post in site.posts %}
-      <li>
-        <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
+		<p>After graduation I worked as a designer at Penney &amp Company and Axiom Audio where I learned valuable fundamentals in the industry. I gained a wealth of experience in print design, photography, and ecommerce before launching Pixel Flex on October 1st 2008.</p>
 
-        <h2>
-          <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
-        </h2>
-      </li>
-    {% endfor %}
-  </ul>
+		<p>During my start-up phase I participated in the <a href="http://cybf.ca/">Canadian Youth Business Foundation</a> (CYBF), which supported my financing and mentoring by Jesse Bennett-Chamberlain, <a href="http://31three.com/">31Three</a>.</p>
 
-  <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a></p>
+		<p>I am currently a <a href="http://www.rgd.ca/">Registered Graphic Designer</a> at <a href="http://www.pixelflex.com/">Pixel Flex</a> with over 8 years of work experience and always interested in new projects anywhere around the world.</p>
+		<p><span>Personal Page credit goes to <a href="http://nazhamid.com/">Naz Hamid</a> over at <a href="http://weightshift.com/">Weightshift</a>.<span></p>
+		
+	</div>
 
-</div>
+	<ul id="connect">
+		<li><a href="http://twitter.com/pixelflex"><img src="twitter.png"></a></li>
+		<li><a href="http://www.flickr.com/flexbook"><img src="flickr.png"></a></li>
+		<li><a href="http://dribbble.com/pixelflex"><img src="dribbble.png"></a></li>
+		<li><a href="http://ca.linkedin.com/in/timlum"><img src="linkedin.png"></a></li>
+		<li><a href="mailto:steve.kehlet@gmail.com"><img src="email.png"></a></li>
+	</ul>
+
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="jquery.backstretch.min.js"></script>
+	<script type="text/javascript">
+		$(function () {
+			$(window).resize(function () {
+				if($(this).width() >= 767){
+					$.backstretch("http://dummyimage.com/1280/ffffff/efefef", {speed: 150});
+				}
+			}).resize();
+		});
+	</script>
+
+</body>	
+</html>
