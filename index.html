@@ -16,6 +16,11 @@
 		    padding: 0;
 		    margin: 0;
 		}
+		body {
+			margin-left: auto;
+			margin-right: auto;
+			text-align: center;
+		}
 		p {
 		    color: #000;
 		    font-family: Helvetica;
@@ -24,10 +29,14 @@
 		    margin-bottom: 15px;
 		    -webkit-font-smoothing: antialiased;
 		}
+		#profile-photo {
+			margin: 25px;
+		}
 		#about a {
 		    color: #777;
 		    font-weight: bold;
 		    text-decoration: none;
+		    border-left: 50px;
 		    border-bottom: 0px solid rgb(15, 58, 45);
 		}
 		#about a:hover {
@@ -36,31 +45,18 @@
 		    border-bottom: 1px solid rgb(15, 58, 45);
 		    text-shadow: none;
 		}
-		#logo {
-		    width: 50px;
-		    margin: 0;
-		    position: fixed;
-		    right: 50px;
-		    top: 50px;
-		}
-		#about {
-		    width: 400px;
-		    padding: 50px 0 0 30px;
-		    margin: 0 auto 0 50px !important;
-		}
 		h1 {
 		    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 		    font-weight: 300;
-		    margin-bottom: 20px;
-		    line-height: 130%;
 		    color: #000;
 		    text-shadow: none;
 		}
 		ul#connect {
 		    white-space: nowrap;
-		    width: 400px;
-		    padding: 10px 0 0 20px;
-		    margin: 0 auto 0 50px !important;
+		}
+		ul li img {
+			width: 40px;
+			height: 40px;
 		}
 		#connect li {
 		    display: inline;
@@ -74,61 +70,40 @@
 		#connect a:link,
 		#navlist a:visited {
 		    text-decoration: none;
-		    opacity: 0.2;
+		    opacity: 0.4;
 		    border-style: none;
 		}
 		#connect a:hover {
 		    text-decoration: none;
-		    opacity: 0.4;
+		    opacity: 0.6;
 		    border-style: none;
 		}
 		#connect img {
 		    border: none;
-		}
-		span {
-		    color: #333;
 		}
 	</style>
 </head>	
     
 <body>
 
-	<div id="about">
-		<h1>Steve Kehlet is ... ?</h1>
-		
-
-
-	<p>Movet virtute pertinax sit ad, an consetetur accommodare est. Elit putant intellegam et vel, no rebum paulo veniam quo. Et impetus rationibus his. Vero laoreet recusabo duo in, id nam viris tritani. Has ne facete detracto. Vix an modo lorem eripuit, voluptua conceptam voluptaria ex vim.</p>
-
-	<p>Sea ne altera consetetur moderatius, congue conceptam eu mel. Eum illud malorum eu, ad aliquid voluptatibus nam. Pri at oblique fierent, usu te dico aliquid. Has ne dicat probatus, amet adhuc mentitum ne sit, sed ex inermis aliquando. Sed in nihil inciderint, eam quot oratio intellegam an. Sit ut velit graecis perpetua.</p>
-
-	<p>Nam eu illud invenire, cu has nullam complectitur, nam dicta epicurei senserit ea. Atqui dicta duo eu, at commune explicari pro. Eum in persius ocurreret constituto, sed te facer salutandi definiebas. Usu an tollit albucius philosophia. Labore euismod nec no, mei alia splendide moderatius te. Euripidis referrentur ius ne, ea brute autem sea.</p>
-
-	<p>Liber deleniti ea pro, ea mel choro nostro tincidunt, est partem consulatu et. Postea molestiae tincidunt ea qui, pro wisi aperiam id, vim nostro mentitum id. Cu alii fabellas eum, at nec decore possim. Ex nihil gloriatur qui, te wisi omnium indoctum usu.</p>
-
-	<p>Eos id eripuit propriae accumsan, purto pericula mnesarchum an quo. At vim altera oporteat, his reformidans consectetuer eu, his ea agam mucius. Eam labore principes eu, no eum nulla quando saperet. In mea utroque impedit phaedrum, usu saepe nostrum ea.</p>
-
+	<div id="profile-photo">
+		<img src="steve-profile.png" width="250" height="250">
 	</div>
 
-	<ul id="connect">
-		<li><a href="http://twitter.com/pixelflex"><img src="twitter.png"></a></li>
-		<li><a href="http://www.flickr.com/flexbook"><img src="flickr.png"></a></li>
-		<li><a href="http://dribbble.com/pixelflex"><img src="dribbble.png"></a></li>
-		<li><a href="http://ca.linkedin.com/in/timlum"><img src="linkedin.png"></a></li>
-		<li><a href="mailto:steve.kehlet@gmail.com"><img src="email.png"></a></li>
-	</ul>
+	<div id="bio">
+		<div id="about">
 
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-	<script type="text/javascript" src="jquery.backstretch.min.js"></script>
-	<script type="text/javascript">
-		$(function () {
-			$(window).resize(function () {
-				if($(this).width() >= 767){
-					$.backstretch("steve-profile.png", {speed: 150});
-				}
-			}).resize();
-		});
-	</script>
+			<h1>Steve Kehlet</h1>
 
+			<p>Software Designer and Architect</p>
+
+			<ul id="connect">
+				<li><a href="http://stackoverflow.com/users/296829/steve-kehlet"><img src="stackoverflow-icon.png"></a></li>
+				<li><a href="https://www.linkedin.com/in/steven-kehlet-b006aa4"><img src="linkedin-icon.png"></a></li>
+				<li><a href="https://www.facebook.com/steve.kehlet"><img src="facebook-icon.png"></a></li>
+				<li><a href="mailto:steve.kehlet@gmail.com"><img src="email-icon.png"></a></li>
+			</ul>
+		</div>
+	</div>
 </body>	
 </html>
