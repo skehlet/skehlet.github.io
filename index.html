@@ -1,23 +1,109 @@
----
-layout: default
----
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Steve Kehlet</title>
+	<link rel="Shortcut Icon" href="/favicon.ico" type="image/x-icon" />
+	<meta http-equiv="pragma" content="no-cache" />
+	<meta name="robots" content="all" />
+	<meta name="MSSmartTagsPreventParsing" content="true" />
+	<meta http-equiv="imagetoolbar" content="false" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->	
+	<style>
+		* {
+		    padding: 0;
+		    margin: 0;
+		}
+		body {
+			margin-left: auto;
+			margin-right: auto;
+			text-align: center;
+		}
+		p {
+		    color: #000;
+		    font-family: Helvetica;
+		    font-size: 80%;
+		    line-height: 20px;
+		    margin-bottom: 15px;
+		    -webkit-font-smoothing: antialiased;
+		}
+		#profile-photo {
+			margin: 25px;
+		}
+		#about a {
+		    color: #777;
+		    font-weight: bold;
+		    text-decoration: none;
+		    border-left: 50px;
+		    border-bottom: 0px solid rgb(15, 58, 45);
+		}
+		#about a:hover {
+		    text-decoration: none;
+		    color: #888;
+		    border-bottom: 1px solid rgb(15, 58, 45);
+		    text-shadow: none;
+		}
+		h1 {
+		    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+		    font-weight: 300;
+		    color: #000;
+		    text-shadow: none;
+		}
+		ul#connect {
+		    white-space: nowrap;
+		}
+		ul li img {
+			width: 40px;
+			height: 40px;
+		}
+		#connect li {
+		    display: inline;
+		    list-style-type: none;
+		}
+		#connect a {
+		    text-decoration: none;
+		    padding: 3px 5px;
+		    border-style: none;
+		}
+		#connect a:link,
+		#navlist a:visited {
+		    text-decoration: none;
+		    opacity: 0.4;
+		    border-style: none;
+		}
+		#connect a:hover {
+		    text-decoration: none;
+		    opacity: 0.6;
+		    border-style: none;
+		}
+		#connect img {
+		    border: none;
+		}
+	</style>
+</head>	
+    
+<body>
 
-<div class="home">
+	<div id="profile-photo">
+		<img src="steve-profile.png" width="250" height="250">
+	</div>
 
-  <h1 class="page-heading">Posts</h1>
+	<div id="bio">
+		<div id="about">
 
-  <ul class="post-list">
-    {% for post in site.posts %}
-      <li>
-        <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
+			<h1>Steve Kehlet</h1>
 
-        <h2>
-          <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
-        </h2>
-      </li>
-    {% endfor %}
-  </ul>
+			<p>Software Designer and Architect</p>
 
-  <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a></p>
-
-</div>
+			<ul id="connect">
+				<li><a href="http://stackoverflow.com/users/296829/steve-kehlet"><img src="stackoverflow-icon.png"></a></li>
+				<li><a href="https://www.linkedin.com/in/steven-kehlet-b006aa4"><img src="linkedin-icon.png"></a></li>
+				<li><a href="https://www.facebook.com/steve.kehlet"><img src="facebook-icon.png"></a></li>
+				<li><a href="mailto:steve.kehlet@gmail.com"><img src="email-icon.png"></a></li>
+			</ul>
+		</div>
+	</div>
+</body>	
+</html>
