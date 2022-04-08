@@ -1,0 +1,766 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"  
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+
+
+
+<title>
+Tuning TCP for High Bandwidth-Delay Networks -- Steve Kehlet's Pages
+</title>
+<link rel="Stylesheet" href="/kehlet-cx-style.css" type="text/css" media="screen" />
+
+
+
+</head>
+
+<body>
+
+<!-- main layout -->
+<table id="main" border="0" cellspacing="0" cellpadding="0">
+<tr>
+
+<td id="nav">
+<div class="sidebarSheet">
+<div id="siteName">Steve Kehlet's Pages</div>
+</div><!-- sidebarSheet -->
+
+
+<div id="articleListSheet">
+<div class="navHeader">Articles:</div>
+<div id="navList">
+<a href="/articles/blog.html">What happened to your blog?</a><br />
+<a href="/articles/99.html">Tuning TCP for High Bandwidth-Delay Networks</a><br />
+<a href="/articles/79.html">Subnetting is Fun</a><br />
+</div> <!-- navList -->
+</div> <!-- articleListSheet -->
+
+
+
+<div id="finePrint">
+Copyright (c) 2003-2022 Steven Kehlet
+</div>
+
+
+</td> <!-- nav -->
+
+<td valign="top"> <!-- content -->
+
+<br />
+
+
+<div id="sheet" style="overflow: hidden">
+
+<div id="articleHeading">
+Tuning TCP for High Bandwidth-Delay Networks
+</div>
+
+<div id="articleSubtitle">
+Tue Nov 9th 2004, 8:23pm
+
+</div> <!-- articleSubtitle -->
+<div id="articleBody">
+Like the Energizer bunny, TCP just keeps on going without any need for tuning or
+maintenance.  Right?  
+
+<br><br>
+
+For many of us, TCP just hums in the background, sending our data efficiently and
+effectively without another thought.  And what exactly does TCP do for us anyway?  Let's
+recap:
+
+<ol>
+<li>reliable, ordered delivery via independent, bidirectional sequence numbers
+<li>ports so multiple connections between systems can occur simultaneously
+<li>connection setup and teardown
+<li>flow control via a sliding congestion window
+</ol>
+
+Let's focus for a moment on TCP's sliding congestion window.  It's the feature that allows
+a sender to send a certain amount of data on the wire without having yet received an
+acknowledgment from the receiver.  It "slides" open and shut as the receiver lets the
+sender know how much data can be safely transmitted at any given moment, based on network
+conditions, free memory on the receiver, etc.  Without this windowing feature, we'd have
+to send a byte, wait for an acknowledgment, send another byte, and so on.  You can imagine
+that this "Stop and Wait" type of protocol would be a performance nightmare.  But who
+picks the size of this window?  How big is big enough, or too big?
+
+<br><br>
+
+On this topic, a curiosity recently arose while I was working where some of our
+intercontinental WAN links just weren't living up to their advertised capability.  What
+was going on?  The links should be 2Mbps, but we were barely getting 600-700Kbps over them
+with our FTP transfers.  And this was between two Solaris 8 systems, which should have a
+decent, if not one of the best TCP/IP stacks in the industry.  
+
+<br><br>
+
+So after a bit of investigating performance problems on WAN links I came across upon a
+plethora of writeups on TCP window sizes, the bandwidth delay product (BDP), and networks
+with high BDPs, or "Long Fat Networks" (LFNs, read "elephants").  Bottom line, it turns
+out most TCP stacks in the industry just aren't by default setup for use over today's WAN
+links, satellite links, even gigabit ethernet--anything with either a high bandwidth or
+delay, or both.
+
+<br><br>
+
+Let's consider what makes an LFN an LFN.  We'll use the above WAN link as an example.  Say
+you measure the round trip time (RTT) to be 300ms using ping.  This means it's taking
+about 150ms for the data you're sending to get to the other side, and another 150ms for
+the other side's acknowledgment to get back to you.  300ms is a pretty long delay, almost
+a third of a second.  Click the screenshot of Figure 1 below to watch a flash animation I
+created demonstrating a ping over this LFN.
+
+<br><br>
+
+<div align="center">
+<a href="/docs/tcp_windows/tcp1.html"><img src="/docs/tcp_windows/tcp1.jpg"></a>
+<br>
+<b>Figure 1: Ping behavior over an LFN (click to watch)</b>
+</div>
+
+<br><br>
+
+So let's consider the BDP--what is it?  The BDP tells us the optimal TCP window size
+needed to fully utilize the line.  To keep the pipe fully utilized you must push data onto
+the wire, at your given bandwidth, for as long as an entire RTT.  That is, the receiver
+must advertise a window size big enough to allow the sender to keep sending data right up
+until he begins receiving acknowledgments.  Say the WAN link is 2 megabits per second
+(Mbps).  In our case, we need a window size big enough to allow for 300ms of data.  Let's
+compute the BDP:
+
+<br>
+
+<pre>
+Bandwidth      * Delay   = Product
+2000000 bits/s * .3 s    = 600,000 bits * 1 byte/8 bits = 75,000 bytes
+</pre>
+
+<br>
+
+So in this example our TCP window size should be a minimum of 75,000 bytes.  But let's say
+that our systems haven't been properly tuned for this type of bandwidth and delay, and
+their TCP stack have a maximum TCP window size of 24,000 bytes.  Oh no!  Click and watch
+the simulated behavior in Figure 2.
+
+<br>
+
+<div align="center">
+<a href="/docs/tcp_windows/tcp2.html"><img src="/docs/tcp_windows/tcp2.jpg"></a>
+<br>
+<b>Figure 2: Untuned TCP session over an LFN (click to watch)</b>
+</div>
+
+<br>
+
+You can clearly visualize in the animation above how inefficient this is.  The sender can
+only send so much data before it's completely filled the window and has to stop and wait
+for some acknowledgments to come back.  As soon as that first ACK comes back it can resume
+sending data--until it prematurely fills the window again, and so on.  
+
+<br><br>
+
+As it turns out, I didn't just pick 24,000 bytes out of the air--that is Solaris 8's
+default maximum TCP window size (24576 to be exact).  And this is the reason we were only
+getting 600-700Kbps on a 2Mbps line.  The fact is Solaris 8, by default, just isn't tuned
+for performance on a high bandwidth-delay network.  But this problem doesn't just affect
+the fairly antiquated Solaris 8--most OSes today have a default maximum TCP window size of
+at most 64KB, which would still be insufficient.
+
+<br><br>
+
+Fortunately, the TCP window size is easily adjustable on Solaris or pretty much any OS. 
+Instructions on how to do this are widely available (see links at the end of this
+article).  It's probably worth noting that the adjustments you make are actually to the
+default socket buffer size for each application, which indirectly allows the system to
+advertise larger TCP windows.  The following commands are for Solaris:
+
+<pre>
+     ndd -set /dev/tcp tcp_xmit_hiwat 75000
+     ndd -set /dev/tcp tcp_recv_hiwat 75000
+</pre>
+
+<br>
+
+So we adjusted our systems to use 75,000 byte TCP window sizes.  Click and watch Figure 3
+for a demonstration of an optimized TCP flow.
+
+<br>
+
+<div align="center">
+<a href="/docs/tcp_windows/tcp3.html"><img src="/docs/tcp_windows/tcp3.jpg"></a>
+<br>
+<b>Figure 3: Optimal TCP session over an LFN (click to watch)</b>
+</div>
+
+<br>
+
+Much better.  And in fact now we're getting a full 1.9-2Mbps on our WAN link. 
+
+<br><br>
+
+The next logical questions would be: what are the dangers of increasing the TCP window
+size, and how much is too much?  The only real downside to turning up the default socket
+buffer sizes is increased memory usage, which in this age of cheap and plentiful memory
+doesn't seem like a big deal.  But also the argument comes up that with more unacknowleged
+data in flight, the risk of clogging your networks increases as more data might be
+transmitted, lost, and retransmitted.  This could be the case if your network is having
+errors, in which case you should probably fix the problem anyway.  But if you don't
+increase the window size you're underutilizing your network.  So which is worse?
+
+<br><br>
+
+As a side note, we found turning up the TCP window size on our gigabit ethernet-capable
+systems had a significant performance boost on LAN throughput as well.  Using Iperf (see
+links at end of article), a great tool for testing different TCP window sizes and their
+effect on throughput, we realized an increase from about 300Mbps to 850-900Mbps.
+
+<br><br>
+
+Let's take one last look at the BDP formula and observe the following, essentially the
+point of this article: TCP bandwidth is limited by the round trip time of the line and the
+size of the TCP window.  While the former is out of your control, the latter is not.  You
+could in fact prove, using the BDP formula, that with a TCP window of 24,576 bytes, it was
+impossible for me to get any more than 655Kbps on a line with a RTT of 300ms.  
+
+<br><br>
+
+So while TCP is normally a well-oiled machine, there are still opportunities for
+performance tuning and considerable payoff for understanding how things work under the
+hood.  Of all the networking settings you can tweak on your machine, tuning the TCP window
+size is hands down the biggest bang-for-buck optimization you can make for improving
+throughput over high bandwidth-delay networks.
+
+<br><br>
+
+<hr>
+<br>
+
+While that's the end of the discussion on sizing and tuning TCP windows, there's actually
+quite a bit more for anyone interested.  Here are some tidbits: The original designers of
+TCP made the window size 16 bits, which allow a maximum of 65,536 bytes.  After all, who
+would ever need a bigger window than that? :-).  In order to accommodate larger window
+sizes, the systems must both support TCP window scaling (RFC1323), which basically just
+specifies a multiplier (2,4,8,16 etc) to the advertised window size.  Also, when the
+window sizes start getting huge, and thus the amount of unacknowledged data in flight also
+gets huge, the ability to do selective ACKs (SACKs) becomes important.  This allows
+recipients to selectively request retransmits of particular sequence ranges, instead of
+throwing away and requiring retransmits of everything past the lost segment, as was the
+nature of the original TCP spec.  Most modern OSes should be capable of both of the above,
+I know Linux, Solaris, and FreeBSD 5.x all are, however surprisingly in almost all cases
+these are not enabled by default.
+
+<br><br>
+
+TCP is a complicated yet fascinating protocol, here are some links which may be of
+interest:
+
+<ul>
+<li><a
+href="http://web.archive.org/web/20080803082218/http://dast.nlanr.net/Guides/GettingStarted/TCP_window_size.html">A
+User's Guide to TCP Windows</a> (excellent)
+<li><a href="/docs/tcpwin.php">TCP Window calculator</a>
+<li><a href="http://dast.nlanr.net/Projects/Iperf/">Iperf: measure maximum TCP
+bandwidth</a>
+<li><a href="http://www.psc.edu/networking/projects/tcptune/">Enabling High Performance
+Data Transfers</a>
+<li><a href="http://www.faqs.org/rfcs/rfc1072.html">RFC1072</a> (scaled windows, selective
+acknowledgments, and round-trip timing, in order to provide efficient operation over
+large-bandwidth*delay-product paths)
+<li><a href="http://www.faqs.org/rfcs/rfc1323.html">RFC1323</a> (supercedes 1072)
+<li><a href="http://proj.sunet.se/LSR3-s/"> SUNET Internet2 Land Speed Record Broken</a>
+(18,000 miles, 4.311 Gbit/sec, RTT of 436ms, 250MB TCP windows used)
+</ul>
+</div>
+</div> <!-- sheet -->
+
+<br /><br /><br />
+<div id="postingsSheet">
+<div class="postingHeader">
+Visitor comments
+</div>
+<div class="posting">
+<div class="postingHeading">
+On Fri Jul 14th 2006, 1:35pm, Visitor posted:
+</div>
+<div class="postingBody">
+Very informative. 
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Fri Jul 14th 2006, 3:46pm, Steve Kehlet posted:
+</div>
+<div class="postingBody">
+Thanks Visitor!  It's nice to know that someone finds this article
+informative.
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Mon Feb 12th 2007, 9:46pm, Visitor posted:
+</div>
+<div class="postingBody">
+Yay TCP windows
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Thu Oct 11th 2007, 5:22pm, Visitor posted:
+</div>
+<div class="postingBody">
+Great article.  Much easier to understand than most of the other ones out
+there.
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Wed Oct 24th 2007, 9:48am, Visitor posted:
+</div>
+<div class="postingBody">
+Very clear. With satellites, the BDP is of the order of 10's of MB's. Would
+you know what settings and tuning people use? Thx
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Wed Oct 24th 2007, 12:07pm, Steve Kehlet posted:
+</div>
+<div class="postingBody">
+Hi Visitor, thanks for posting.  I'd be curious to know too, but no, I
+haven't done any work with TCP over satellite links.  I'd guess, just like
+any other link, you'd want to measure the RTT and then just use a TCP
+window calculator (like the one I have linked above) to determine what the
+optimal TCP window size would be.  That should be a ballpark figure at
+least.
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Fri Dec 14th 2007, 7:24am, Rohit posted:
+</div>
+<div class="postingBody">
+the best i have found on net ..thanks 
+<br />
+can u tell me what shud we do when network bandwidth is low and sender
+sytem buffer gets full ?? should we increase delay (RTT) 
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Wed Sep 10th 2008, 12:51am, Dharmendra Tripathi posted:
+</div>
+<div class="postingBody">
+Great article. Thanks much.
+<br />
+I want a suggestion. We have a web application (deployed on Tomcat)on Sun
+Sparc m/c with Solaris 9 and 2 GB of RAM. Sometimes in excessive load,
+response times becomes too slow. How can we improve the server response
+time by setting TCP config parameters? Please suggest.     <br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Thu Nov 6th 2008, 5:15pm, Mike posted:
+</div>
+<div class="postingBody">
+Good article...
+<br />
+
+<br />
+So, taken into consideration the BDP (RCV Window, Latency) what is the
+calculation needed to answer questions like:
+<br />
+a) how long it would take to send 1GBYTES over a 100Mbit Link?
+<br />
+b) What size link is required to send 1GBYTE in 10 seconds?
+<br />
+
+<br />
+Thanks, <br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Thu Jan 8th 2009, 5:54pm, Visitor (Glenn) posted:
+</div>
+<div class="postingBody">
+This is a fantastic, well-written article on a very important subject. 
+Well done!<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Thu Mar 26th 2009, 5:20pm, Jackie posted:
+</div>
+<div class="postingBody">
+Good artical!  <br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Thu Apr 16th 2009, 12:08pm, Visitor posted:
+</div>
+<div class="postingBody">
+Your article, Tuning TCP for High Bandwidth-Delay Networks, is really good!
+ I send this article to clients that think throwing bandwidth at a TCP
+transmission issue is the answer.  Once they see this and optimize their
+TCP window size, things get much better.  Some opt for WAN accelleration
+which does this and much more.
+<br />
+
+<br />
+Thanks again!  This truly is a great resource!!!!<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Thu Jul 2nd 2009, 3:15pm, Mohan posted:
+</div>
+<div class="postingBody">
+Excellent article on this subject. Nice flash animations.
+<br />
+
+<br />
+I have one question. Available link bandwidth and delay of a link can vary
+depending on how many others are using the link. In that case, how do we
+calculate the BDP?
+<br />
+
+<br />
+Thanks again for the wonderful artile. I have forwarded it my collegues.<br
+/>
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Tue Sep 29th 2009, 12:05pm, Visitor posted:
+</div>
+<div class="postingBody">
+This is by the far the best and simplest article I found that gives an
+excellent explanation about TCP windows Size and throughput ...<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Sun Nov 29th 2009, 12:31pm, Visitor posted:
+</div>
+<div class="postingBody">
+Thanks for a very lucid, simple, and compelling explanation!<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Wed Mar 24th 2010, 8:14am, Visitor posted:
+</div>
+<div class="postingBody">
+Great article. Thank you!<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Fri Mar 26th 2010, 8:02pm, Visitor posted:
+</div>
+<div class="postingBody">
+Great article!; However, manual tuning will only work in certain
+environments; consider this topology:
+http://i39.tinypic.com/34g7ij6.jpg
+<br />
+
+<br />
+if you manually adjust the RWIN for ftp01.lax01 and ftp01.nap01 for the
+2Mbps link: RWIN: 75K, you will indeed see a performance increase; however,
+once you try to establish a link to ftp01.ber01 from ftp01.lax01 and
+transfer a file, you will see a decrease in performance: as the RWIN for
+the connection will need to be at least 250K for 200ms and a 10Mbps VPN
+pipe (assuming 0 percent utilization on both Internet connections):
+10000000/8 * .2 = 250K, however, as you manually configured the RWIN on
+ftp01.lax01, the maximum theoretical throughput you can achieve between
+ftp01.lax01 and ftp01.ber01 would be 3Mbps (RWIN/RTT=Throughput); 75000/.2=
+375KB/sec or 3Mbps. Check this out, if you started the same file transfer
+from ftp02.lax01 to ft01.ber01 with TCP RWIN Auto Tuning, your performance
+would be much better as the RWIN would be calculated on the fly. 
+<br />
+
+<br />
+Hope this clears things up a bit.
+<br />
+
+<br />
+Evilbit<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Fri Mar 26th 2010, 11:29pm, Steve Kehlet posted:
+</div>
+<div class="postingBody">
+@Evilbit: Glad you liked the article.  Yes, when sizing your tcp windows
+you need to consider the path with the largest bandwidth-delay product, or
+you could unintentionally limit your throughput.  In your example, simply
+pick 250KB and you're covered in both cases.  Regarding auto tuning of the
+tcp window size, good point, it's probably best to let the OS handle this,
+if it's capable--note I wrote this article six years ago, when neither
+Windows nor Linux (and certainly not Solaris) had this ability.
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Sat Mar 27th 2010, 9:48am, Visitor posted:
+</div>
+<div class="postingBody">
+Steve, exactly; six years ago is a long time; this is why I added it in
+case someone else had some confusion. Take care
+<br />
+
+<br />
+EB<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Sat Mar 27th 2010, 9:49am, Visitor posted:
+</div>
+<div class="postingBody">
+Steve, exactly; six years ago is a long time; this is why I added it in
+case someone else had some confusion. Take care
+<br />
+
+<br />
+EB<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Mon Apr 19th 2010, 5:53pm, Visitor posted:
+</div>
+<div class="postingBody">
+Hi - really appreciate the excellent &amp; clear writeup.  By chance, do
+you have a new link for &quot;A User's Guide to TCP Windows
+(excellent)&quot;  The page can't be displayed.  thanks!<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Mon Apr 19th 2010, 6:32pm, Steve Kehlet posted:
+</div>
+<div class="postingBody">
+Sadly, no.  Looks like the project wrapped up, google doesn't have a cached
+copy.  Oh wait!  It occurred to me to try the Wayback machine, here it
+is:
+<br />
+
+<br />
+http://web.archive.org/web/20080803082218/http://dast.nlanr.net/Guides/GettingStarted/TCP_window_size.html
+<br
+/>
+
+<br />
+(here is the search page from the wayback machine:
+http://web.archive.org/web/*/http://dast.nlanr.net/Guides/GettingStarted/TCP_window_size.html)<br
+/>
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Wed Apr 21st 2010, 4:43pm, Visitor posted:
+</div>
+<div class="postingBody">
+thanks for the tip on the Wayback machine and the link to a copy of the
+User's Guide!  cool.<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Thu Jan 27th 2011, 9:45am, Visitor posted:
+</div>
+<div class="postingBody">
+Hi Steve,  I think you're message (and the same message from other authors)
+is getting out.  It's brought up another learning, that setting the window
+size too large may fill buffers in newtork elements and ruin your latency
+and jitter.  If you have a home network and want to use different types of
+applications, it's a good idea not to overdo the window size.  Have a look
+at more information by sarching for bufferbloat on Wikipedia.  Best
+Regards.<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Thu Jan 27th 2011, 10:39am, Steve Kehlet posted:
+</div>
+<div class="postingBody">
+Thanks Visitor for bringing up the point of too large window sizes.<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Fri Jun 24th 2011, 1:45am, ThumbsUp posted:
+</div>
+<div class="postingBody">
+Excellent, thank you very much !<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Fri Feb 10th 2012, 3:51pm, Sandeep posted:
+</div>
+<div class="postingBody">
+awesome post. Thanks.<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Wed Mar 7th 2012, 6:52am, Visitor posted:
+</div>
+<div class="postingBody">
+Thanks. It is great<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Mon May 13th 2013, 8:40pm, Visitor posted:
+</div>
+<div class="postingBody">
+Nearly 9 years later, and still this article sits ready to serve up great
+information. Thanks Steve!<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+<div class="posting">
+<div class="postingHeading">
+On Mon Jul 29th 2013, 4:42am, Visitor posted:
+</div>
+<div class="postingBody">
+Well-written article, thanks!<br />
+
+</div><!-- postingBody -->
+</div><!-- posting -->
+<br />
+<br />
+
+</div> <!-- postingsSheet -->
+<br />
+<br />
+<div class="newerOlderLinks">
+<a href="/articles/105.html">&lt;- 12/19/04: The Blither of Earthsea</a>
+ &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp; 
+<a href="/articles/102.html">10/31/04: San Andreas -&gt;</a>
+</div> <!-- newerOlderLinks -->
+
+
+</td> <!-- content -->
+
+</tr>
+</table> <!-- main layout -->
+
+</body>
+</html>
+
+<!-- Generated on 2014/09/07 11:29am -->

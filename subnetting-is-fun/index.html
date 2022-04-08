@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" ng-app="myApp" class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Subnetting Is Fun</title>
+  <meta name="description" content="An online tool for practicing subnetting.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="bower_components/html5-boilerplate/css/normalize.css">
+  <link rel="stylesheet" href="bower_components/html5-boilerplate/css/main.css">
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="app.css"/>
+  <script src="bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
+</head>
+<body>
+
+  <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+  <![endif]-->
+
+  <div class="container" ng-controller="View1Ctrl">
+  <h1>Subnetting is Fun!</h1>
+
+  <p>
+  Here is the new, all-Javascript version of my original web-based quiz to practice your subnetting/supernetting skills. Given an IP and a netmask, you derive the network and broadcast addresses. I wrote it to prep for the
+  <a href="http://www.cisco.com/web/learning/certifications/associate/ccna/index.html">CCNA</a> 
+  exam and to sharpen my on-the-job subnetting skills.
+  I recommend reading Chris Bloomfield's
+  <a href="http://www.subnettingmadeeasy.blogspot.com/2007/11/subnetting-made-easy-lesson.html">Subnetting Made Easy</a> that gives an excellent and mercifully short explanation of how to subnet.
+  </p>
+
+  <p>
+   If you're interested, the source code is <a href="https://github.com/skehlet/subnetting-is-fun">available on Github</a>, 
+   and you can 
+   <a href="http://stevekehlet.com/articles/79.html" target="_blank">read my original post about it</a>.
+   This new version (10 years later!) is all Javascript, 
+   <a href="https://angularjs.org/">Angular.js</a>,
+   and <a href="http://getbootstrap.com/">Bootstrap</a>--no more backend PHP/Apache server! I motivated to rewrite it so I could move my blog to 
+   <a href="https://pages.github.com/">GitHub Pages</a>.
+   If you find any bugs or have feedback, 
+   <a href="https://github.com/skehlet/subnetting-is-fun/issues">submit an issue</a>
+   or <a href="mailto:steve.kehlet@gmail.com">drop me an email</a>.
+   Good luck and have fun!
+  </p>
+
+
+  <div class="row">
+
+    <div class="col-sm-5">
+      <h3>Problem</h3>
+      <form ng-submit="submit()">
+        <table class="table table-bordered">
+
+          <tr>
+            <td class="col-sm-2 tdlabel">IP Address:</td>
+            <td class="col-sm-2">{{current.ip.toDottedDecimalString()}}</td>
+          </tr>
+
+          <tr>
+            <td class="tdlabel">Netmask:</td>
+            <td>{{current.netmask.toDottedDecimalString()}}</td>
+          </tr>
+
+          <tr>
+            <td class="tdlabel">Network Address:</td>
+            <td>
+              <input type="text" 
+                     class="form-control" 
+                     ng-model="current.networkAnswer" 
+                     auto-focus
+                     id="networkAnswer"
+                     placeholder="x.x.x.x">
+            </td>
+          </tr>
+
+          <tr>
+            <td class="tdlabel">Broadcast Address:</td>
+            <td>
+              <input type="text" 
+                     class="form-control" 
+                     ng-model="current.broadcastAnswer" 
+                     placeholder="x.x.x.x">{{myform.broadcastAnswer.$error}}
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="2">
+              <input type="submit" class="btn btn-primary" value="Submit">
+              <input type="button" class="btn btn-default" value="Skip" ng-click="skip()">
+            </td>
+          </tr>
+
+        </table>
+      </form>
+    </div>
+
+    <div ng-if="previous.ip" class="col-sm-7">
+      <h3>Results</h3>
+      <table class="table table-bordered">
+
+        <tr>
+          <td class="col-sm-2 tdlabel">IP Address:</td>
+          <td class="col-sm-2">{{previous.ip.toDottedDecimalString()}}</td>
+          <td class="col-sm-4">&nbsp;</td>
+        </tr>
+
+        <tr>
+          <td class="tdlabel">Netmask:</td>
+          <td>{{previous.netmask.toDottedDecimalString()}}</td>
+          <td>&nbsp;</td>
+        </tr>
+
+        <tr ng-class="{ 
+            'has-success': previous.networkAnswerIsCorrect,
+            'has-error': !previous.networkAnswerIsCorrect,
+            'bg-success': previous.networkAnswerIsCorrect,
+            'bg-warning': !previous.networkAnswerIsCorrect,
+          }">
+          <td class="tdlabel control-label"
+              >Network Address:</td>
+          <td class="control-label">{{previous.networkAnswer}}</td>
+          <td class="control-label" ng-if="previous.networkAnswerIsCorrect">
+            <span class="glyphicon glyphicon-ok"></span> 
+            Correct
+          </td>
+          <td class="control-label" ng-if="!previous.networkAnswerIsCorrect">
+            <span class="glyphicon glyphicon-remove"></span> 
+            No, the correct answer is {{previous.network.toDottedDecimalString()}}.
+          </td>
+        </tr>
+
+        <tr ng-class="{ 
+            'has-success': previous.broadcastAnswerIsCorrect,
+            'has-error': !previous.broadcastAnswerIsCorrect,
+            'bg-success': previous.broadcastAnswerIsCorrect,
+            'bg-warning': !previous.broadcastAnswerIsCorrect,
+          }">
+          <td class="tdlabel control-label"
+              >Broadcast Address:</td>
+          <td class="control-label">{{previous.broadcastAnswer}}</td>
+          <td class="control-label" ng-if="previous.broadcastAnswerIsCorrect">
+            <span class="glyphicon glyphicon-ok"></span> 
+            Correct
+          </td>
+          <td class="control-label" ng-if="!previous.broadcastAnswerIsCorrect">
+            <span class="glyphicon glyphicon-remove"></span> 
+            No, the correct answer is {{previous.broadcast.toDottedDecimalString()}}.
+          </td>
+        </tr>
+
+        <tr ng-if="previous.secondsTaken">
+          <td class="tdlabel">Time taken:</td>
+          <td>{{previous.secondsTaken}}sec</td>
+          <td>&nbsp;</td>
+        </tr>
+
+      </table>
+    </div><!-- ng-if="previous" -->
+
+  </div><!-- row -->
+
+
+
+    <hr>
+    <footer>Subnetting Is Fun: v<span app-version></span></footer>
+  </div>
+
+  <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+  <!-- In production use: -->
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
+  <!-- -->
+  <!--
+  <script src="bower_components/angular/angular.js"></script>
+  -->
+  <script src="bower_components/angular-route/angular-route.js"></script>
+  <script src="app.js"></script>
+  <script src="view1.js"></script>
+  <script src="components/version/version.js"></script>
+  <script src="components/version/version-directive.js"></script>
+  <script src="components/version/interpolate-filter.js"></script>
+  <script src="components/autoFocus/autoFocus.js"></script>
+  <script src="components/autoFocus/autoFocus-directive.js"></script>
+</body>
+</html>
