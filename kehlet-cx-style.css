@@ -25,12 +25,12 @@ a:visited {
 
 @font-face {
   font-family: "Graublau Sans Web";
-  src: url("http://stevekehlet.com/fonts/GraublauWeb.otf") format("opentype");
+  src: url("//stevekehlet.com/fonts/GraublauWeb.otf") format("opentype");
 }
 @font-face {
   font-family: "Graublau Sans Web";
   font-weight: bold;
-  src: url("http://stevekehlet.com/fonts/GraublauWebBold.otf") format("opentype");
+  src: url("//stevekehlet.com/fonts/GraublauWebBold.otf") format("opentype");
 }
 
 body {
