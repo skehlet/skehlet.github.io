@@ -1,0 +1,75 @@
+Steve Kehlet
+
+Contact
+
+Email:
+steve.kehlet@gmail.com
+
+Phone:
+(949) 395-8196
+
+Address:
+11 Breezy Meadows Rancho Santa Margarita, CA, 92688
+
+Experience
+
+Software Architect
+Avaneer Health, CA / Mar 2022 - Present
+
+Designing distributed applications powered by blockchain to accelerate collaboration between healthcare systems.  
+
+Architect, Software Development
+NextGen Healthcare — Catalyst Platform Team, Irvine, CA / Jul 2021 - Present
+
+Technical lead responsible for designing a suite of AWS-based components and services to provide common functionality to NextGen products. Designed an audit storage and retrieval system to meet requirements of 100TB of audit data with 1TB/month expected growth. Developed several proofs of concept to demonstrate technical feasibility. Established specifications on structure and validation of event messages. Technologies: AWS EventBridge, CodeBuild/Pipeline, CloudFormation, CloudFront, Python, Lambda, Athena, S3, Parquet.  
+
+Principal Engineer / Product Architect
+NextGen Healthcare — NextGen Office, Irvine, CA / May 2020 - Jun 2021
+
+Presented a path toward improved code quality and operational sustainability via the Product Technical Roadmap (PTR). Negotiated with the Core Team to allocate 10% of scrum team time to PTR work and the reduction of technical debt. Presented architectural goals semi-annually to the NextGen Portfolio Management Board. Presented a monthly summary of product highlights, opportunities, and threats to NextGen's Chief Architect. Participated in monthly company-wide architectural team meetings to present topics of mutual concern and interest. Produced architectural documentation to stakeholders to provide common ground for discussions. Led the NextGen Office Architecture Committee for discussing and solving technical problems. Met with scrum teams in San Diego, Atlanta, and Bangalore to present PTR tickets and answer questions.  
+
+Principal Engineer
+NextGen Healthcare — NextGen Office, Irvine, CA / Dec 2018 - May 2020
+
+Improved reliability with the setup of a fault-tolerant Redis cluster. Built an automated system to snapshot and clone an AWS Redshift database to use for testing/development. Resolved numerous operational problems though code improvements and process automation. Established a logging standard using SLF4J. Technologies: Java, Tomcat, Oracle, S3.  
+
+Principal Engineer
+NextGen Healthcare — Health Data Hub, Irvine, CA / Jun 2014 - Dec 2018
+
+Designed a method to scale horizontally by using Docker containers and RabbitMQ. Designed a method to sync Elasticsearch data using a PostgreSQL table as a journal. Designed an authentication layer using a Node.js microservice and AWS Cognito. Wrote shell scripts to build and deploy the application using Docker containers. Led Team Fibonachos as Scrum Master for one year. Technologies: AWS ECS, Terraform, Docker, Node.js.  
+
+Lead Developer
+Mirth — Mirth Appliances, Costa Mesa, CA / Jun 2007 - Jun 2014
+
+Designed a Linux-based product to run Mirth Connect at customer locations with software updates and phone home features. Developed the Appliance's software frontend, a PHP-based Control Panel for Appliance setup and operation. Developed an auto-tuning mechanism for PostgreSQL based on available system resources. Developed additional management software to handle advanced deployment scenarios. Technologies: Linux, Apache, PHP, PostgreSQL.  
+
+Sr. Systems Administrator
+WebReach — Informacare, Irvine, CA / May 2005 - Jun 2007
+
+Improved the uptime and performance of InformaCare, a web-based application serving 4M hits/day. Managed Network Appliance clusters and NFS configurations. Designed a multi-VLAN network for security and cost savings. Upgraded Oracle and migrated from Solaris to Linux. Resolved various infrastructure issues causing performance problems. Improved deployment scripts to ease administration. Technologies: Solaris, Linux, Java, Oracle.  
+
+Systems Administrator
+Conexant Systems, Inc., Irvine, CA / Apr 2002 - May 2005
+
+Reduced costs by moving simulation clusters from Solaris/SPARC to Linux/x86. Reconfigured switches to use VLAN trunking to allow joining any port on campus to any network. Doubled WAN performance by correcting a problem with TCP window sizes. Technologies: Solaris, Linux, Cisco, Oracle.  
+
+Education
+
+California State University
+Long Beach, CA
+
+Computer Science
+(Jun 1997)
+
+Certifications
+
+AWS Certified Developer — Associate, October 2018
+Coursera Big Data (2015) Specialization, July 2016
+Cisco Certified Network Associate, March 2003
+Oracle Certified Professional: Oracle 8i Database Administrator, August 2002
+Advanced Software Technologies Certification, UC Irvine Extension, March 2002
+
+Awards
+
+2021 NextGen MVP
+2017 NextGen MVP
